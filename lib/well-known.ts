@@ -19,6 +19,7 @@ export class WellKnown extends Construct {
 
 
     const webfingerFn = new NodejsFunction(this, `WebfingerFn`, {
+      functionName: `WebfingerFn`,
       entry: join(__dirname, './lambda/webfinger.ts'),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,

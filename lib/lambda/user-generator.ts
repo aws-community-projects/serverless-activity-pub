@@ -37,15 +37,34 @@ export const handler = async (): Promise<void> => {
           "https://www.w3.org/ns/activitystreams",
           "https://w3id.org/security/v1",
         ],
-  
-        id: `https://${DOMAIN}/actor`,
+
+        id: `https://${DOMAIN}/users/${USERNAME}`,
         type: "Person",
         preferredUsername: `${USERNAME}`,
-        inbox: `https://${DOMAIN}/inbox`,
-  
+        inbox: `https://${DOMAIN}/users/${USERNAME}/inbox`,
+        attachment: [
+          {
+            type: "PropertyValue",
+            name: "Blog",
+            value:
+              '<a href="https://matt.martz.codes" target="_blank" rel="nofollow noopener noreferrer me"><span class="invisible">https://</span><span class="">matt.martz.codes</span><span class="invisible"></span></a>',
+          },
+          {
+            type: "PropertyValue",
+            name: "Github",
+            value:
+              '<a href="https://github.com/martzcodes" target="_blank" rel="nofollow noopener noreferrer me"><span class="invisible">https://</span><span class="">github.com/martzcodes</span><span class="invisible"></span></a>',
+          },
+          {
+            type: "PropertyValue",
+            name: "Linkedin",
+            value:
+              '<a href="https://www.linkedin.com/in/martzcodes" target="_blank" rel="nofollow noopener noreferrer me"><span class="invisible">https://</span><span class="">linkedin.com/in/martzcodes</span><span class="invisible"></span></a>',
+          },
+        ],
         publicKey: {
-          id: `https://${DOMAIN}/actor#main-key`,
-          owner: `https://${DOMAIN}/actor`,
+          id: `https://${DOMAIN}/users/${USERNAME}#main-key`,
+          owner: `https://${DOMAIN}/users/${USERNAME}`,
           publicKeyPem,
         },
       }),

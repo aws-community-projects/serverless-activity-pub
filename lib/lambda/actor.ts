@@ -24,14 +24,14 @@ export const handler = async (event: APIGatewayEvent) => {
         "https://w3id.org/security/v1",
       ],
 
-      id: `https://${DOMAIN}/actor`,
+      id: `https://${DOMAIN}/users/${USERNAME}`,
       type: "Person",
       preferredUsername: `${USERNAME}`,
-      inbox: `https://${DOMAIN}/inbox`,
+      inbox: `https://${DOMAIN}/users/${USERNAME}/inbox`,
 
       publicKey: {
-        id: `https://${DOMAIN}/actor#main-key`,
-        owner: `https://${DOMAIN}/actor`,
+        id: `https://${DOMAIN}/users/${USERNAME}#main-key`,
+        owner: `https://${DOMAIN}/users/${USERNAME}`,
         publicKeyPem: jwks,
       },
     }),

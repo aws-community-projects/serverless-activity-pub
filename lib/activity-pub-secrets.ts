@@ -37,6 +37,7 @@ export class ActivityPubSecrets extends Construct {
     this.bucket.grantRead(this.bucketRole);
 
     const userGenerator = new NodejsFunction(this, 'ActivityPubUserGenerator', {
+      functionName: `ActivityPubUserGenerator`,
       timeout: Duration.seconds(30),
       entry: join(__dirname, './lambda/user-generator.ts'),
       runtime: Runtime.NODEJS_18_X,
@@ -58,7 +59,7 @@ export class ActivityPubSecrets extends Construct {
       serviceToken: userGeneratorProvider.serviceToken,
       properties: {
         // Bump to force an update
-        Version: '3',
+        Version: `${props.username}-1`,
       },
     });
   }

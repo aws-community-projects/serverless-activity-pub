@@ -14,7 +14,7 @@ export const handler = async (event: APIGatewayEvent) => {
           {
             rel: "self",
             type: "application/activity+json",
-            href: `https://${DOMAIN}/actor`,
+            href: `https://${DOMAIN}/users/${USERNAME}`,
           },
         ],
       }),

@@ -22,12 +22,12 @@ export const normalizeHeaders = (
 const requestCleartext = ({
   method = "POST",
   path = "/",
-  headerNames,
+  headerNames = ["host", "date"],
   lcHeaders,
 }: {
   method: string;
-  path: string;
-  headerNames: string[];
+  path?: string;
+  headerNames?: string[];
   lcHeaders: Record<string, string>;
 }) =>
   `(request-target): ${method.toLowerCase()} ${path}\n` +
@@ -81,6 +81,11 @@ export const verifyRequest = async ({
       const [key, value] = part.split("=");
       return { ...acc, [key]: value.split('"')[1] };
     }, {});
+  // hacky workaround for cloudfront replacing the host
+  // const host = sigParts.keyId.replace("https://", "").split("/")[0];
+  lcHeaders.host = `${process.env.DOMAIN}`;
+  console.log(JSON.stringify({lcHeaders}, null, 2));
+  console.log(JSON.stringify({sigParts}, null, 2));
 
   const {
     signature,
@@ -96,6 +101,7 @@ export const verifyRequest = async ({
   console.log(`toVerify: ${toVerify}`);
 
   const key = await getPublicKey({ keyId });
+  console.log(`key: ${key}`);
   if (!key) return false;
 
   return createVerify(normalizeAlgorithm(algorithm))
@@ -116,7 +122,7 @@ export const signRequest = ({
   method: string;
   path: string;
   headers: Record<string, string>;
-  algorithm: string;
+  algorithm?: string;
 }) => {
   const lcHeaders = normalizeHeaders(headers);
   const headerNames = Object.keys(lcHeaders);
@@ -128,7 +134,34 @@ export const signRequest = ({
 
   return [
     `keyId="${keyId}"`,
+    `algorithm="rsa-sha256"`,
     `headers="(request-target) ${headerNames.join(" ")}"`,
     `signature="${signature}"`,
-  ].join(", ");
+  ].join(",");
+};
+
+export const unstructureUserLink = (
+  link: string
+): { server: string; user: string } => {
+  const actor = link.replace("https://", "");
+  const splitActor = actor.split("/");
+  const server = splitActor[0].toLowerCase();
+  const user = splitActor[splitActor.length - 1].toLowerCase();
+  return { server, user };
+};
+
+export const expandUndo = (
+  activity: any
+): { targetServer?: string; targetUser?: string; type?: string } => {
+  if (activity.type.toLowerCase() !== "undo") {
+    return {};
+  }
+  const { server: targetServer, user: targetUser } = unstructureUserLink(
+    activity.object.object
+  );
+  return {
+    type: activity.object.type.toLowerCase(),
+    targetServer,
+    targetUser,
+  };
 };
