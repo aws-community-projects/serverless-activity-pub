@@ -1,7 +1,6 @@
 import { EventBridgeEvent } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
-import { unstructureUserLink } from "../utils";
+import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 
 import {
   EventBridgeClient,
@@ -31,31 +30,33 @@ const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
 export const handler = async (event: EventBridgeEvent<string, any>) => {
   console.log(JSON.stringify(event));
   const activity = event.detail;
-  const { server: targetServer, user: targetUser } = unstructureUserLink(activity.object);
-  if (targetUser !== process.env.USERNAME) {
-    console.log(`Trying to follow unsupported user: ${targetUser}`);
-    return;
-  }
-  const command = new PutCommand({
+  const command = new UpdateCommand({
     TableName: process.env.TABLE_NAME,
-    Item: {
-      pk: `USER#${targetUser}`,
+    Key: {
+      pk: `USER#${activity.targetUser}`,
       sk: `FOLLOWER#${activity.activityUser}@${activity.activityServer}`,
-      active: true,
-      id: activity.id,
-      actor: activity.actor,
     },
+    UpdateExpression: "SET active = :a REMOVE #id",
+    ConditionExpression: "attribute_exists(id)",
+    ExpressionAttributeNames: {
+      "#id": "id",
+    },
+    ExpressionAttributeValues: {
+      ":a": false,
+    },
+    ReturnValues: "ALL_NEW"
   });
-  await ddbDocClient.send(command);
+  const ddbRes = await ddbDocClient.send(command);
+  console.log(JSON.stringify({ddbRes}));
   const putEventsCommand = new PutEventsCommand({
     Entries: [
       {
-        Source: `activity-pub.follow-add`,
-        DetailType: 'follower.added',
+        Source: `activity-pub.undo-follow`,
+        DetailType: 'follower.removed',
         Detail: JSON.stringify({
           ...activity,
           type: activity.type.toLowerCase(),
-          pk: `USER#${targetUser}`,
+          pk: `USER#${activity.targetUser}`,
           sk: `FOLLOWER#${activity.activityUser}@${activity.activityServer}`,
         }),
       },

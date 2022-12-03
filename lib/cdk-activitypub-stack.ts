@@ -2,7 +2,7 @@ import { Stack, StackProps } from "aws-cdk-lib";
 import { EventBus } from "aws-cdk-lib/aws-events";
 import { Construct } from "constructs";
 import { ActivityPubSecrets } from "./activity-pub-secrets";
-import { Actor } from "./actor";
+import { Users } from "./users";
 import { ActivityPubApi } from "./api";
 import { Cognito } from "./cognito";
 import { Dynamo } from "./dynamo";
@@ -56,12 +56,13 @@ export class CdkActivitypubStack extends Stack {
       username,
     });
 
-    const actor = new Actor(this, `Actor`, {
+    const actor = new Users(this, `Users`, {
       api,
       bucket: activityPubSecrets.bucket,
       bucketRole: activityPubSecrets.bucketRole,
       domain,
       inbox,
+      table,
       username,
     });
 

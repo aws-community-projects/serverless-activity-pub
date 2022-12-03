@@ -1,14 +1,7 @@
 import { EventBridgeEvent } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
-import { unstructureUserLink } from "../utils";
 
-import {
-  EventBridgeClient,
-  PutEventsCommand,
-} from "@aws-sdk/client-eventbridge";
-
-const eb = new EventBridgeClient({});
 const ddbClient = new DynamoDBClient({});
 const marshallOptions = {
   // Whether to automatically convert empty strings, blobs, and sets to `null`.
@@ -31,15 +24,14 @@ const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
 export const handler = async (event: EventBridgeEvent<string, any>) => {
   console.log(JSON.stringify(event));
   const activity = event.detail;
-  const { server: targetServer, user: targetUser } = unstructureUserLink(activity.object);
-  if (targetUser !== process.env.USERNAME) {
-    console.log(`Trying to follow unsupported user: ${targetUser}`);
-    return;
-  }
+  const actor = activity.actor;
+  const to = [...(activity?.to || []), ...(activity?.cc || [])];
+  // are we following actor?
+  // are we in the to list?
   const command = new PutCommand({
     TableName: process.env.TABLE_NAME,
     Item: {
-      pk: `USER#${targetUser}`,
+      pk: `USER#${process.env.USERNAME}`,
       sk: `FOLLOWER#${activity.activityUser}@${activity.activityServer}`,
       active: true,
       id: activity.id,
@@ -47,19 +39,4 @@ export const handler = async (event: EventBridgeEvent<string, any>) => {
     },
   });
   await ddbDocClient.send(command);
-  const putEventsCommand = new PutEventsCommand({
-    Entries: [
-      {
-        Source: `activity-pub.follow-add`,
-        DetailType: 'follower.added',
-        Detail: JSON.stringify({
-          ...activity,
-          type: activity.type.toLowerCase(),
-          pk: `USER#${targetUser}`,
-          sk: `FOLLOWER#${activity.activityUser}@${activity.activityServer}`,
-        }),
-      },
-    ],
-  });
-  await eb.send(putEventsCommand);
 };

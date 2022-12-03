@@ -1,5 +1,4 @@
 import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
-import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { IEventBus } from "aws-cdk-lib/aws-events";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";

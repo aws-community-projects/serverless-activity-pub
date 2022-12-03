@@ -44,6 +44,50 @@ export class EventDriven extends Construct {
       targets: [new LambdaFunction(addFollowerFn)],
     });
 
+    const undoFollowFn = new NodejsFunction(this, `UndoFollowFn`, {
+      functionName: `UndoFollowFn`,
+      entry: join(__dirname, './lambda/event-driven/undo-follow.ts'),
+      runtime: Runtime.NODEJS_18_X,
+      logRetention: RetentionDays.ONE_DAY,
+      environment: {
+        DOMAIN: domain,
+        USERNAME: username,
+        TABLE_NAME: table.tableName,
+      }
+    });
+    bus.grantPutEventsTo(undoFollowFn);
+    table.grantReadWriteData(undoFollowFn);
+    
+    new Rule(this, `UndoFollowRule`, {
+      eventBus: bus,
+      eventPattern: {
+        source: [`activity-pub.inbox-post`],
+        detailType: [`undo.follow`]
+      },
+      targets: [new LambdaFunction(undoFollowFn)],
+    });
+
+    const updateFollowersFn = new NodejsFunction(this, `UpdateFollowersFn`, {
+      functionName: `UpdateFollowersFn`,
+      entry: join(__dirname, './lambda/event-driven/update-followers.ts'),
+      runtime: Runtime.NODEJS_18_X,
+      logRetention: RetentionDays.ONE_DAY,
+      environment: {
+        DOMAIN: domain,
+        USERNAME: username,
+        TABLE_NAME: table.tableName,
+      }
+    });
+    table.grantReadWriteData(updateFollowersFn);
+    
+    new Rule(this, `UpdateFollowersRule`, {
+      eventBus: bus,
+      eventPattern: {
+        detailType: [`follower.added`, `follower.removed`]
+      },
+      targets: [new LambdaFunction(updateFollowersFn)],
+    });
+
     const followAcceptFn = new NodejsFunction(this, `FollowAcceptFn`, {
       functionName: `FollowAcceptFn`,
       entry: join(__dirname, './lambda/event-driven/follow-accept.ts'),

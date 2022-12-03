@@ -41,7 +41,7 @@ const lcAlgorithms: Record<string, string> = getHashes().reduce(
 const normalizeAlgorithm = (algorithm: string) =>
   lcAlgorithms[algorithm.toLowerCase()];
 
-const getPublicKey = async ({ keyId }: { keyId: string }) => {
+export const getPublicKey = async ({ keyId }: { keyId: string }) => {
   try {
     const actorReq = await fetch(keyId, {
       headers: {
@@ -127,6 +127,7 @@ export const signRequest = ({
   const lcHeaders = normalizeHeaders(headers);
   const headerNames = Object.keys(lcHeaders);
   const toSign = requestCleartext({ method, path, headerNames, lcHeaders });
+  console.log(JSON.stringify({toSign}));
 
   const signature = createSign(normalizeAlgorithm(algorithm))
     .update(toSign)

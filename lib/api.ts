@@ -128,7 +128,7 @@ exports.handler = (event, context, callback) => {
       {
         // cookieBehavior: OriginRequestCookieBehavior.allowList(...[]),
         queryStringBehavior: OriginRequestQueryStringBehavior.allowList(
-          ...["resource"]
+          ...["resource", "page"]
         ),
         headerBehavior: OriginRequestHeaderBehavior.allowList(...["Signature", "Digest"]),
       }

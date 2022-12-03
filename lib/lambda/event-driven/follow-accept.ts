@@ -35,6 +35,7 @@ export const handler = async (event: EventBridgeEvent<string, any>) => {
 
   const inboxUrl = new URL(actorInbox);
   const { protocol, host, pathname, search } = inboxUrl;
+  console.log(JSON.stringify({ host }));
 
   const body = {
     "@context": "https://www.w3.org/ns/activitystreams",
@@ -48,17 +49,18 @@ export const handler = async (event: EventBridgeEvent<string, any>) => {
       object: activity.object,
     },
   };
+  console.log(JSON.stringify({ body }));
 
   const path = pathname + search;
   const method = "POST";
-  const digest = createHash('sha256')
+  const digest = createHash("sha256")
     .update(JSON.stringify(body))
-    .digest('base64')
+    .digest("base64");
   const headers = {
     Host: host,
     Date: new Date().toUTCString(),
     Digest: `SHA-256=${digest}`,
-    'Content-Type': 'application/activity+json',
+    "Content-Type": "application/activity+json",
   };
 
   const signature = signRequest({
@@ -71,14 +73,23 @@ export const handler = async (event: EventBridgeEvent<string, any>) => {
 
   const options = {
     method,
-    body,
+    body: JSON.stringify(body),
     headers: {
       ...headers,
       Signature: signature,
+      Accept:
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams", application/json',
     },
   };
   console.log(JSON.stringify(options));
 
-  const result = await fetch(`${protocol}//${host}${path}`, options);
-  console.log(JSON.stringify(result));
+  try {
+    console.log(`${protocol}//${host}${path}`);
+    console.log(`body: ${JSON.stringify(body)}`);
+    const res = await fetch(`${protocol}//${host}${path}`, options);
+    const txt = await res.text();
+    console.log(txt);
+  } catch (e) {
+    console.log(e);
+  }
 };

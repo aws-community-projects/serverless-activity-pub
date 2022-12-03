@@ -37,11 +37,22 @@ export const handler = async (): Promise<void> => {
           "https://www.w3.org/ns/activitystreams",
           "https://w3id.org/security/v1",
         ],
-
         id: `https://${DOMAIN}/users/${USERNAME}`,
         type: "Person",
+        name: "martzcodes",
         preferredUsername: `${USERNAME}`,
         inbox: `https://${DOMAIN}/users/${USERNAME}/inbox`,
+        following: `https://${DOMAIN}/users/${USERNAME}following`,
+        followers: `https://${DOMAIN}/users/${USERNAME}followers`,
+        featured: `https://${DOMAIN}/users/${USERNAME}/collections/featured`,
+        url: `https://${DOMAIN}/u/${USERNAME}`,
+        tag: [],
+        icon: {
+          type: "Image",
+          mediaType: "image/png",
+          url: "https://cdn.masto.host/awscommunitysocial/accounts/avatars/109/285/701/561/689/321/original/36034c74b7bcc778.png",
+        },
+        featuredTags: `https://${DOMAIN}/users/${USERNAME}/collections/tags`,
         attachment: [
           {
             type: "PropertyValue",

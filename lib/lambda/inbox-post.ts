@@ -1,5 +1,5 @@
 import type { APIGatewayEvent } from "aws-lambda";
-import { expandUndo, unstructureUserLink, verifyRequest } from "./utils";
+import { expandUndo, getPublicKey, unstructureUserLink, verifyRequest } from "./utils";
 import {
   EventBridgeClient,
   PutEventsCommand,
@@ -35,6 +35,17 @@ export const handler = async (event: APIGatewayEvent) => {
   const { server: activityServer, user: activityUser } = unstructureUserLink(
     activity.actor
   );
+  try {
+    const signature = activity.signature;
+    if (signature) {
+      const key = await getPublicKey({ keyId: signature.creator });
+      const decoded = Buffer.from(signature.signatureValue, 'base64').toString('utf8');
+      console.log(`${key} vs ${decoded} = ${key === decoded}`);
+      delete activity.signature;
+    }
+  } catch(e) {
+    console.log(e);
+  }
 
   const putEventInput = {
     Entries: [
