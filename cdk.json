@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/cdk-activitypub.ts",
+  "app": "npx ts-node --prefer-ts-exts bin/serverless-activity-pub.ts",
   "watch": {
     "include": [
       "**"

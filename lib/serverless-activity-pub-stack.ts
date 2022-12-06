@@ -11,14 +11,24 @@ import { Inbox } from "./inbox";
 import { Internal } from "./internal";
 import { WellKnown } from "./well-known";
 
-export class CdkActivitypubStack extends Stack {
+export class ServerlessActivityPub extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     const username = "a";
     const domain = `martz.codes`;
 
+    const { table } = new Dynamo(this, `Dynamo`, {});
     const bus = EventBus.fromEventBusName(this, `DefaultBus`, 'default');
+
+    const activityPubSecrets = new ActivityPubSecrets(
+      this,
+      `ActivityPubSecrets`,
+      {
+        domain,
+        username,
+      }
+    );
 
     const { authorizer, userPoolId, userPoolWebClientId } = new Cognito(
       this,
@@ -36,17 +46,6 @@ export class CdkActivitypubStack extends Stack {
       domain,
       username,
     });
-
-    const activityPubSecrets = new ActivityPubSecrets(
-      this,
-      `ActivityPubSecrets`,
-      {
-        domain,
-        username,
-      }
-    );
-
-    const { table } = new Dynamo(this, `Dynamo`, {});
 
     const { inbox } = new Inbox(this, `Inbox`, {
       api,

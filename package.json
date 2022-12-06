@@ -1,8 +1,8 @@
 {
-  "name": "cdk-activitypub",
+  "name": "serverless-activity-pub",
   "version": "0.1.0",
   "bin": {
-    "cdk-activitypub": "bin/cdk-activitypub.js"
+    "serverless-activity-pub": "bin/serverless-activity-pub.js"
   },
   "scripts": {
     "build": "tsc",

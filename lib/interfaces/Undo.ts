@@ -1,9 +1,9 @@
-import { Follow } from "./AddFollower";
+import { AddFollower } from "./AddFollower";
 
 export interface Undo {
   "@context": string;
   actor: string;
   id: string;
-  object: Follow;
+  object: AddFollower;
   type: "Undo";
 }
