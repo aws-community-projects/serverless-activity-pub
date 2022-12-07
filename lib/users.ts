@@ -1,71 +1,63 @@
-import {
-  AwsIntegration,
-  IntegrationResponse,
-  LambdaIntegration,
-  RestApi,
-} from "aws-cdk-lib/aws-apigateway";
+import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
-import { Role } from "aws-cdk-lib/aws-iam";
+import { IEventBus } from "aws-cdk-lib/aws-events";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
-import { Bucket } from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 import { join } from "path";
 
 export interface UsersProps {
   api: RestApi;
-  bucket: Bucket;
-  bucketRole: Role;
+  bus: IEventBus;
   domain: string;
-  inbox: LambdaIntegration;
   table: Table;
-  username: string;
 }
 
 export class Users extends Construct {
   constructor(scope: Construct, id: string, props: UsersProps) {
     super(scope, id);
-    const { api, bucket, bucketRole, domain, table, username } = props;
+    const { api, bus, domain, table } = props;
     const actor = api.root.addResource("users");
-    const user = actor.addResource(username);
-
-    const userIntegration = new AwsIntegration({
-      service: "s3",
-      integrationHttpMethod: "GET",
-      path: `${bucket.bucketName}/${username}.json`,
-      options: {
-        credentialsRole: bucketRole,
-        integrationResponses: [
-          {
-            statusCode: "200",
-            "method.response.header.Content-Type":
-              "integration.response.header.Content-Type",
-            "method.response.header.Content-Disposition":
-              "integration.response.header.Content-Disposition",
-          } as IntegrationResponse,
-          { statusCode: "400" },
-        ],
-      },
-    });
-
-    user.addMethod("GET", userIntegration, {
-      methodResponses: [{ statusCode: "200" }],
-    });
-
-    const userInbox = user.addResource("inbox");
-    userInbox.addMethod("POST", props.inbox);
-
-    const userFollowersFn = new NodejsFunction(this, `UserFollowersFn`, {
-      functionName: `UserFollowersFn`,
-      entry: join(__dirname, './lambda/user-followers.ts'),
+    const user = actor.addResource("{username}");
+    const userFn = new NodejsFunction(this, `UserFn`, {
+      functionName: `InboxPostFn`,
+      entry: join(__dirname, "./lambda/user.ts"),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
-        USERNAME: username,
+      },
+    });
+    table.grantReadData(userFn);
+
+    user.addMethod("GET", new LambdaIntegration(userFn), {
+      methodResponses: [{ statusCode: "200" }],
+    });
+
+    const inboxPostFn = new NodejsFunction(this, `InboxPostFn`, {
+      functionName: `InboxPostFn`,
+      entry: join(__dirname, "./lambda/inbox-post.ts"),
+      runtime: Runtime.NODEJS_18_X,
+      logRetention: RetentionDays.ONE_DAY,
+      environment: {
+        DOMAIN: domain,
+      },
+    });
+    bus.grantPutEventsTo(inboxPostFn);
+
+    const userInbox = user.addResource("inbox");
+    userInbox.addMethod("POST", new LambdaIntegration(inboxPostFn));
+
+    const userFollowersFn = new NodejsFunction(this, `UserFollowersFn`, {
+      functionName: `UserFollowersFn`,
+      entry: join(__dirname, "./lambda/user-followers.ts"),
+      runtime: Runtime.NODEJS_18_X,
+      logRetention: RetentionDays.ONE_DAY,
+      environment: {
+        DOMAIN: domain,
         TABLE_NAME: table.tableName,
-      }
+      },
     });
     table.grantReadData(userFollowersFn);
     const userFollowers = user.addResource("followers");

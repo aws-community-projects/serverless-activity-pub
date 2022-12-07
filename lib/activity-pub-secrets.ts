@@ -10,7 +10,6 @@ import { join } from "path";
 
 export interface SecretsProps {
   domain: string;
-  username: string;
 }
 
 export class ActivityPubSecrets extends Construct {
@@ -35,32 +34,5 @@ export class ActivityPubSecrets extends Construct {
       assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
     });
     this.bucket.grantRead(this.bucketRole);
-
-    // const userGenerator = new NodejsFunction(this, 'ActivityPubUserGenerator', {
-    //   functionName: `ActivityPubUserGenerator`,
-    //   timeout: Duration.seconds(30),
-    //   entry: join(__dirname, './lambda/user-generator.ts'),
-    //   runtime: Runtime.NODEJS_18_X,
-    //   environment: {
-    //     SECRET_ID: this.secret.secretArn,
-    //     BUCKET_ID: this.bucket.bucketName,
-    //     DOMAIN: props.domain,
-    //     USERNAME: props.username,
-    //   },
-    // });
-    // this.secret.grantWrite(userGenerator);
-    // this.bucket.grantWrite(userGenerator);
-
-    // const userGeneratorProvider = new Provider(this, 'ActivityPubUserGenerateProvider', {
-    //   onEventHandler: userGenerator,
-    // });
-
-    // new CustomResource(this, 'ActivityPubUserGenerateResource', {
-    //   serviceToken: userGeneratorProvider.serviceToken,
-    //   properties: {
-    //     // Bump to force an update
-    //     Version: `${props.username}-1`,
-    //   },
-    // });
   }
 }

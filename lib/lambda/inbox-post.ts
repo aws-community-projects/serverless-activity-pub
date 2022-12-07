@@ -9,9 +9,12 @@ const eb = new EventBridgeClient({});
 
 export const handler = async (event: APIGatewayEvent) => {
   console.log(JSON.stringify(event, null, 2));
-  if (!event.body) {
+  if (!event.body || !event.pathParameters?.username) {
     return { statusCode: 400, body: "Missing Body" };
   }
+
+  // TODO: verify target user exists in dynamodb
+
   const headers: Record<string, string> = Object.entries(event.headers).reduce(
     (p, [k, v]) => {
       if (v) {
@@ -57,6 +60,7 @@ export const handler = async (event: APIGatewayEvent) => {
             : activity.type.toLowerCase(),
         Detail: JSON.stringify({
           ...activity,
+          userName: event.pathParameters.userName,
           type: activity.type.toLowerCase(),
           activityServer,
           activityUser,

@@ -1,23 +1,44 @@
 import fetch from "node-fetch";
 import { EventBridgeEvent } from "aws-lambda";
-import {
-  SecretsManager,
-  GetSecretValueCommand,
-} from "@aws-sdk/client-secrets-manager";
 import { URL } from "url";
 import { signRequest } from "../utils";
 import { createHash } from "crypto";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
+import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
-const sm = new SecretsManager({ region: "us-east-1" });
+const ddbClient = new DynamoDBClient({});
+const marshallOptions = {
+  // Whether to automatically convert empty strings, blobs, and sets to `null`.
+  convertEmptyValues: false, // false, by default.
+  // Whether to remove undefined values while marshalling.
+  removeUndefinedValues: false, // false, by default.
+  // Whether to convert typeof object to map attribute.
+  convertClassInstanceToMap: false, // false, by default.
+};
+
+const unmarshallOptions = {
+  // Whether to return numbers as a string instead of converting them to native JavaScript numbers.
+  wrapNumbers: false, // false, by default.
+};
+
+const translateConfig = { marshallOptions, unmarshallOptions };
+
+// Create the DynamoDB Document client.
+const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
 
 export const handler = async (event: EventBridgeEvent<string, any>) => {
   console.log(JSON.stringify(event));
   const activity = event.detail;
-  const getSecretValueCommand = new GetSecretValueCommand({
-    SecretId: `${process.env.SECRET_ID}`,
+  const privateUser = new GetCommand({
+    TableName: process.env.TABLE_NAME,
+    Key: {
+      pk: `USER#${event.detail.userName}`,
+      sk: "PRIVATE",
+    },
   });
-  const secretRes = await sm.send(getSecretValueCommand);
-  const secret = secretRes.SecretString!;
+  const privateUserRes = await ddbDocClient.send(privateUser);
+  const secret = privateUserRes.Item?.privateKey;
 
   // get user inbox
   const actorRaw = await fetch(activity.actor, {

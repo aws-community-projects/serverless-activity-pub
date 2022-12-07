@@ -7,7 +7,6 @@ import { ActivityPubApi } from "./api";
 import { Cognito } from "./cognito";
 import { Dynamo } from "./dynamo";
 import { EventDriven } from "./event-driven";
-import { Inbox } from "./inbox";
 import { Internal } from "./internal";
 import { WellKnown } from "./well-known";
 
@@ -15,25 +14,26 @@ export class ServerlessActivityPub extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const username = "a";
     const domain = `martz.codes`;
 
     const { table } = new Dynamo(this, `Dynamo`, {});
-    const bus = EventBus.fromEventBusName(this, `DefaultBus`, 'default');
+    const bus = EventBus.fromEventBusName(this, `DefaultBus`, "default");
 
     const activityPubSecrets = new ActivityPubSecrets(
       this,
       `ActivityPubSecrets`,
       {
         domain,
-        username,
       }
     );
 
     const { authorizer, userPoolId, userPoolWebClientId } = new Cognito(
       this,
       `Cognito`,
-      {}
+      {
+        domain,
+        table,
+      }
     );
     const { api } = new ActivityPubApi(this, `ActivityPubApi`, {
       domain,
@@ -44,32 +44,20 @@ export class ServerlessActivityPub extends Stack {
     const wellKnown = new WellKnown(this, `WellKnown`, {
       api,
       domain,
-      username,
+      table,
     });
 
-    const { inbox } = new Inbox(this, `Inbox`, {
+    new Users(this, `Users`, {
       api,
-      bucket: activityPubSecrets.bucket,
       bus,
       domain,
-      username,
-    });
-
-    const actor = new Users(this, `Users`, {
-      api,
-      bucket: activityPubSecrets.bucket,
-      bucketRole: activityPubSecrets.bucketRole,
-      domain,
-      inbox,
       table,
-      username,
     });
 
-    const internal = new Internal(this, `Internal`, {
+    new Internal(this, `Internal`, {
       api,
       authorizer,
       domain,
-      username,
     });
 
     new EventDriven(this, `EventDriven`, {
@@ -77,7 +65,6 @@ export class ServerlessActivityPub extends Stack {
       domain,
       secret: activityPubSecrets.secret,
       table,
-      username,
     });
   }
 }

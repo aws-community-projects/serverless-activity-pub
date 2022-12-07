@@ -13,13 +13,12 @@ export interface EventDrivenProps {
   domain: string;
   secret: Secret;
   table: Table;
-  username: string;
 }
 
 export class EventDriven extends Construct {
   constructor(scope: Construct, id: string, props: EventDrivenProps) {
     super(scope, id);
-    const { bus, domain, secret, table, username } = props;
+    const { bus, domain, secret, table } = props;
 
     const addFollowerFn = new NodejsFunction(this, `FollowAddFn`, {
       functionName: `FollowAddFn`,
@@ -28,7 +27,6 @@ export class EventDriven extends Construct {
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
-        USERNAME: username,
         TABLE_NAME: table.tableName,
       }
     });
@@ -51,7 +49,6 @@ export class EventDriven extends Construct {
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
-        USERNAME: username,
         TABLE_NAME: table.tableName,
       }
     });
@@ -74,7 +71,6 @@ export class EventDriven extends Construct {
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
-        USERNAME: username,
         TABLE_NAME: table.tableName,
       }
     });
@@ -95,11 +91,10 @@ export class EventDriven extends Construct {
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
-        USERNAME: username,
         SECRET_ID: secret.secretArn,
       }
     });
-    secret.grantRead(followAcceptFn);
+    table.grantReadData(followAcceptFn);
     
     new Rule(this, `FollowAcceptRule`, {
       eventBus: bus,

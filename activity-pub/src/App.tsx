@@ -22,21 +22,24 @@ const router = createBrowserRouter([
   },
   {
     path: "/auth/sign_up",
-    element: <Authenticator initialState="signUp"></Authenticator>,
+    element: <Authenticator initialState="signUp" signUpAttributes={[
+      'email',
+      'preferred_username',
+    ]}></Authenticator>,
   },
 ]);
 
 function App() {
   const { user, signOut } = useAuthenticator((context) => [context.user]);
-  // const [config, setConfig] = useState<any>({
-  //   loaded: true,
-  //   data: {
-  //     userPoolId: "us-east-1_GMYjjOAZT",
-  //     userPoolWebClientId: "4025rl130ea9pcffv12dkvh1n8",
-  //     version: "1",
-  //   },
-  // });
-  const [config, setConfig] = useState<any>({loaded: false, data: {}});
+  const [config, setConfig] = useState<any>({
+    loaded: true,
+    data: {
+      userPoolId: "us-east-1_isQ949aGt",
+      userPoolWebClientId: "38rn6ih356smbhm6sk008c73ns",
+      version: "1",
+    },
+  });
+  // const [config, setConfig] = useState<any>({loaded: false, data: {}});
   const getConfig = async () => {
     const { data } = await axios.get("/config.json");
     console.log(JSON.stringify(data));
@@ -60,8 +63,9 @@ function App() {
   }, [config]);
   return config.loaded ? (
     <div>
-      <h1>User: 
-        <pre>{JSON.stringify(user)}</pre>
+      <h1>
+        User:
+        <pre>{JSON.stringify(user, null, 2)}</pre>
       </h1>
       <RouterProvider router={router} />
     </div>

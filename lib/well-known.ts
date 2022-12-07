@@ -1,4 +1,5 @@
 import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
+import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
@@ -8,13 +9,13 @@ import { join } from "path";
 export interface WellKnownProps {
   api: RestApi;
   domain: string;
-  username: string;
+  table: Table;
 }
 
 export class WellKnown extends Construct {
   constructor(scope: Construct, id: string, props: WellKnownProps) {
     super(scope, id);
-    const { api, domain, username } = props;
+    const { api, domain, table } = props;
     const wellknown = api.root.addResource('.well-known');
 
 
@@ -25,9 +26,9 @@ export class WellKnown extends Construct {
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
-        USERNAME: username
       }
     });
+    table.grantReadData(webfingerFn);
 
     const webfinger = wellknown.addResource('webfinger');
     webfinger.addMethod('GET', new LambdaIntegration(webfingerFn));

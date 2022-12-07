@@ -1,14 +1,5 @@
-# Welcome to your CDK TypeScript project
+# Serverless-ActivityPub
 
-This is a blank project for CDK development with TypeScript.
+This is a CDK-based Serverless Implementation of ActivityPub that is (or will be) compatible with Mastodon.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-## Useful commands
-
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk synth`       emits the synthesized CloudFormation template
+You should absolutely not use this (for now)... it's a POC and most APIs are not implemented (yet).

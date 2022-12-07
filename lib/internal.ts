@@ -14,22 +14,20 @@ export interface InternalProps {
   api: RestApi;
   authorizer: CognitoUserPoolsAuthorizer;
   domain: string;
-  username: string;
 }
 
 export class Internal extends Construct {
   constructor(scope: Construct, id: string, props: InternalProps) {
     super(scope, id);
-    const { api, authorizer, domain, username } = props;
+    const { api, authorizer, domain } = props;
     const internal = api.root.addResource("internal");
     const internalFn = new NodejsFunction(this, `InternalFn`, {
       functionName: `InternalFn`,
-      entry: join(__dirname, './lambda/webfinger.ts'),
+      entry: join(__dirname, './lambda/internal.ts'),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
-        USERNAME: username
       }
     });
 
