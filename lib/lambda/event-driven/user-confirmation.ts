@@ -42,7 +42,7 @@ export const handler = async (event: any) => {
       },
     });
 
-    // privateKey should get stored to DDB
+    // ? privateKey should get stored to DDB?
     const privateCommand = new PutCommand({
       TableName: process.env.TABLE_NAME,
       Item: {

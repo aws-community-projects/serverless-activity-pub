@@ -1,12 +1,8 @@
-import { RemovalPolicy, Duration, CustomResource } from "aws-cdk-lib";
+import { RemovalPolicy } from "aws-cdk-lib";
 import { Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
-import { Runtime } from "aws-cdk-lib/aws-lambda";
-import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Bucket, BlockPublicAccess, ObjectOwnership } from "aws-cdk-lib/aws-s3";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
-import { Provider } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
-import { join } from "path";
 
 export interface SecretsProps {
   domain: string;
