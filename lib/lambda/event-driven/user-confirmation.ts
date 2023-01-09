@@ -28,7 +28,8 @@ export const handler = async (event: any) => {
   console.log(JSON.stringify(event, null, 2));
 
   const { DOMAIN } = process.env;
-  const userName = event.userName;
+  // TODO: check that the user name is valid/exists
+  const userName = event.request?.userAttributes?.preferred_username;
   try {
     const { publicKey: publicKeyPem, privateKey } = generateKeyPairSync("rsa", {
       modulusLength: 2048, // the length of your key in bits
@@ -63,10 +64,10 @@ export const handler = async (event: any) => {
         name: `${userName}`,
         preferredUsername: `${userName}`,
         inbox: `https://${DOMAIN}/users/${userName}/inbox`,
-        following: `https://${DOMAIN}/users/${userName}following`,
-        followers: `https://${DOMAIN}/users/${userName}followers`,
+        following: `https://${DOMAIN}/users/${userName}/following`,
+        followers: `https://${DOMAIN}/users/${userName}/followers`,
         featured: `https://${DOMAIN}/users/${userName}/collections/featured`,
-        url: `https://${DOMAIN}/u/${userName}`,
+        url: `https://${DOMAIN}/users/${userName}`,
         tag: [],
         // icon: {
         //   type: "Image",

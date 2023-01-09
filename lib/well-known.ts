@@ -29,6 +29,7 @@ export class WellKnown extends Construct {
       }
     });
     table.grantReadData(webfingerFn);
+    webfingerFn.addEnvironment('TABLE_NAME', table.tableName)
 
     const webfinger = wellknown.addResource('webfinger');
     webfinger.addMethod('GET', new LambdaIntegration(webfingerFn));

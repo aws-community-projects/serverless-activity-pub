@@ -21,12 +21,13 @@ export class Users extends Construct {
     const actor = api.root.addResource("users");
     const user = actor.addResource("{username}");
     const userFn = new NodejsFunction(this, `UserFn`, {
-      functionName: `InboxPostFn`,
+      functionName: `UserFn`,
       entry: join(__dirname, "./lambda/user.ts"),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
+        TABLE_NAME: table.tableName,
       },
     });
     table.grantReadData(userFn);

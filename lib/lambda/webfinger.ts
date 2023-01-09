@@ -25,7 +25,7 @@ const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
 export const handler = async (event: APIGatewayEvent) => {
   console.log(JSON.stringify(event));
   try {
-    const { USERNAME, DOMAIN } = process.env;
+    const { DOMAIN } = process.env;
     const resource = event.queryStringParameters?.resource;
     if (resource) {
       const splitResource = resource?.split("@");
@@ -45,12 +45,12 @@ export const handler = async (event: APIGatewayEvent) => {
           return {
             statusCode: 200,
             body: JSON.stringify({
-              subject: `acct:${USERNAME}@${DOMAIN}`,
+              subject: `acct:${user}@${DOMAIN}`,
               links: [
                 {
                   rel: "self",
                   type: "application/activity+json",
-                  href: `https://${DOMAIN}/users/${USERNAME}`,
+                  href: `https://${DOMAIN}/users/${user}`,
                 },
               ],
             }),

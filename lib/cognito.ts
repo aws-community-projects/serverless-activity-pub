@@ -29,7 +29,8 @@ export class Cognito extends Construct {
       environment: {
         TABLE_NAME: table.tableName,
         DOMAIN: domain,
-      }
+      },
+      timeout: Duration.seconds(30),
     });
     table.grantReadWriteData(userConfirmationFn);
 

@@ -1,7 +1,6 @@
 import { Stack, StackProps } from "aws-cdk-lib";
 import { EventBus } from "aws-cdk-lib/aws-events";
 import { Construct } from "constructs";
-import { ActivityPubSecrets } from "./activity-pub-secrets";
 import { Users } from "./users";
 import { ActivityPubApi } from "./api";
 import { Cognito } from "./cognito";
@@ -19,13 +18,14 @@ export class ServerlessActivityPub extends Stack {
     const { table } = new Dynamo(this, `Dynamo`, {});
     const bus = EventBus.fromEventBusName(this, `DefaultBus`, "default");
 
-    const activityPubSecrets = new ActivityPubSecrets(
-      this,
-      `ActivityPubSecrets`,
-      {
-        domain,
-      }
-    );
+    // can probably remove this.
+    // const activityPubSecrets = new ActivityPubSecrets(
+    //   this,
+    //   `ActivityPubSecrets`,
+    //   {
+    //     domain,
+    //   }
+    // );
 
     const { authorizer, userPoolId, userPoolWebClientId } = new Cognito(
       this,
