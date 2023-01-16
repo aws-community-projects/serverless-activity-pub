@@ -1,26 +1,15 @@
-import { Amplify, Auth } from 'aws-amplify';
-// import { withAuthenticator, Button, Heading } from '@aws-amplify/ui-react';
-// import { Amplify, Auth } from 'aws-amplify';
-// import '@aws-amplify/ui-react/styles.css';
-
-
-// Amplify.configure({
-//   Auth: {
-//     region: "us-east-1",
-//     userPoolId: import.meta.env.VITE_USER_POOL_ID,
-//     userPoolWebClientId: import.meta.env.VITE_USER_POOL_WEB_CLIENT_ID,
-//   },
-// });
-
-// const currentConfig = Auth.configure();
+import Message from "./components/message";
+import { authRequired } from "./protected";
 
 function Private() {
-  const currentConfig = Auth.configure();
-  console.log(JSON.stringify(`currentConfig: ${JSON.stringify(currentConfig)}`));
+  authRequired();
 
   return (
-   <div>Private</div>
-  )
+    <div>
+      <h1>Private</h1>
+      <Message></Message>
+    </div>
+  );
 }
 
-export default Private
+export default Private;

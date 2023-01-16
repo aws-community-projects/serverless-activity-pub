@@ -1,22 +1,8 @@
-import { Amplify, Auth } from 'aws-amplify';
-// import { withAuthenticator, Button, Heading } from '@aws-amplify/ui-react';
-// import { Amplify, Auth } from 'aws-amplify';
-// import '@aws-amplify/ui-react/styles.css';
-
-
-// Amplify.configure({
-//   Auth: {
-//     region: "us-east-1",
-//     userPoolId: import.meta.env.VITE_USER_POOL_ID,
-//     userPoolWebClientId: import.meta.env.VITE_USER_POOL_WEB_CLIENT_ID,
-//   },
-// });
-
-// const currentConfig = Auth.configure();
+import { useAuthenticator } from '@aws-amplify/ui-react';
 
 function Home() {
-  const currentConfig = Auth.configure();
-  console.log(JSON.stringify(`currentConfig: ${JSON.stringify(currentConfig)}`));
+  const { user } = useAuthenticator((context) => [context.user]);
+  console.log(JSON.stringify({ user }, null, 2));
 
   return (
    <div>Home</div>

@@ -5,7 +5,9 @@ import axios from "axios";
 import { Amplify } from "aws-amplify";
 import "@aws-amplify/ui-react/styles.css";
 import Home from "./Home";
-import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
+import { useAuthenticator } from "@aws-amplify/ui-react";
+import Auth from "./Auth";
+import Header from "./components/header";
 
 const router = createBrowserRouter([
   {
@@ -18,55 +20,56 @@ const router = createBrowserRouter([
   },
   {
     path: "/auth/sign_in",
-    element: <Authenticator></Authenticator>,
+    element: <Auth></Auth>,
   },
   {
     path: "/auth/sign_up",
-    element: <Authenticator initialState="signUp" signUpAttributes={[
-      'email',
-      'preferred_username',
-    ]}></Authenticator>,
+    element: <Auth></Auth>,
+  },
+  {
+    path: "/auth/sign_out",
+    element: <Auth></Auth>,
   },
 ]);
 
 function App() {
-  const { user, signOut } = useAuthenticator((context) => [context.user]);
+  const { user } = useAuthenticator((context) => [context.user]);
   const [config, setConfig] = useState<any>({
     loaded: true,
     data: {
-      userPoolId: "us-east-1_isQ949aGt",
-      userPoolWebClientId: "38rn6ih356smbhm6sk008c73ns",
+      userPoolId: "us-east-1_tsjlays9F",
+      userPoolWebClientId: "1br85s1rbehign88jlor4mophp",
       version: "1",
     },
   });
   // const [config, setConfig] = useState<any>({loaded: false, data: {}});
   const getConfig = async () => {
     const { data } = await axios.get("/config.json");
-    console.log(JSON.stringify(data));
     setConfig({ loaded: true, data });
   };
 
   useEffect(() => {
-    console.log("useEffect");
     getConfig();
   }, []);
 
   useEffect(() => {
-    console.log(JSON.stringify(config));
-    Amplify.configure({
-      Auth: {
-        region: "us-east-1",
-        userPoolId: config.data.userPoolId,
-        userPoolWebClientId: config.data.userPoolWebClientId,
-      },
-    });
+    console.log(JSON.stringify(user, null, 2));
+  }, [user]);
+
+  useEffect(() => {
+    if (config.loaded) {
+      Amplify.configure({
+        Auth: {
+          region: "us-east-1",
+          userPoolId: config.data.userPoolId,
+          userPoolWebClientId: config.data.userPoolWebClientId,
+        },
+      });
+    }
   }, [config]);
   return config.loaded ? (
     <div>
-      <h1>
-        User:
-        <pre>{JSON.stringify(user, null, 2)}</pre>
-      </h1>
+      <Header></Header>
       <RouterProvider router={router} />
     </div>
   ) : (
