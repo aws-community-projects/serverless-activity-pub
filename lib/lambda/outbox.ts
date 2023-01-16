@@ -1,9 +1,6 @@
 import type { APIGatewayEvent } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import {
-  DynamoDBDocumentClient,
-  GetCommand,
-} from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 const ddbClient = new DynamoDBClient({});
 const marshallOptions = {
@@ -29,5 +26,9 @@ export const handler = async (event: APIGatewayEvent) => {
   return {
     statusCode: 200,
     body: JSON.stringify({}),
+    headers: {
+      "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+      "Access-Control-Allow-Credentials": true, // Required for cookies, authorization headers with HTTPS
+    },
   };
 };

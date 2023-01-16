@@ -36,6 +36,7 @@ export class Outbox extends Construct {
       methodResponses: [{ statusCode: "200" }],
       authorizer: props.authorizer,
       authorizationType: AuthorizationType.COGNITO,
+      authorizationScopes: ['aws.cognito.signin.user.admin'],
     });
   }
 }

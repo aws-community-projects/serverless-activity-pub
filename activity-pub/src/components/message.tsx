@@ -11,16 +11,19 @@ const Message = () => {
     setMessageBox(e.target.value);
   };
   const postMessage = async () => {
-    fetch(new URL(`https://martz.codes/outbox`), {
+    const token = user?.getSignInUserSession()?.getAccessToken().getJwtToken();
+    if (token) {
+      fetch(new URL(`https://martz.codes/outbox`), {
       method: "POST",
       body: JSON.stringify({
         message: messageBox,
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
-        "Authorization": "",
+        "Authorization": `Bearer ${token}`,
       },
     });
+    }
   };
   return (
     <section className="px-4 py-4 grid grid-cols-[auto,1fr] gap-4 ">
