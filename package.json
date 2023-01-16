@@ -5,12 +5,11 @@
     "serverless-activity-pub": "bin/serverless-activity-pub.js"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
     "clean": "rimraf cdk.out activity-pub/dist && mkdir -p activity-pub/dist",
-    "deploy": "npm run clean && cdk deploy --all -v"
+    "deploy": "npm run clean && cdk deploy --all -v",
+    "watch": "npm run clean && cdk deploy --all -v --watch"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.108",

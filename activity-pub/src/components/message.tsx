@@ -1,12 +1,26 @@
+import { useAuthenticator } from "@aws-amplify/ui-react";
 import { ViewBoardsIcon } from "@heroicons/react/solid";
 import { useState } from "react";
 import Actions from "./actions";
 
 const Message = () => {
+  const { user } = useAuthenticator((context) => [context.user]);
   const [messageBox, setMessageBox] = useState("");
 
   const handleChange = (e: any) => {
     setMessageBox(e.target.value);
+  };
+  const postMessage = async () => {
+    fetch(new URL(`https://martz.codes/outbox`), {
+      method: "POST",
+      body: JSON.stringify({
+        message: messageBox,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        "Authorization": "",
+      },
+    });
   };
   return (
     <section className="px-4 py-4 grid grid-cols-[auto,1fr] gap-4 ">
@@ -27,6 +41,7 @@ const Message = () => {
           <Actions
             sendMessage={() => {
               console.log(`message: ${messageBox}`);
+              postMessage();
             }}
           />
         </div>

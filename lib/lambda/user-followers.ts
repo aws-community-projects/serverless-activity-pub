@@ -32,7 +32,7 @@ export const handler = async (event: APIGatewayEvent) => {
     const get = new GetCommand({
       TableName: process.env.TABLE_NAME,
       Key: {
-        pk: `USER#${process.env.USERNAME}`,
+        pk: `USER#${event.pathParameters?.username}`,
         sk: "COUNTS",
       },
     });
@@ -50,7 +50,7 @@ export const handler = async (event: APIGatewayEvent) => {
           "#active": "active",
         },
         ExpressionAttributeValues: {
-          ":pk": `USER#${process.env.USERNAME}`,
+          ":pk": `USER#${event.pathParameters?.username}`,
           ":sk": "FOLLOWER",
           ":active": true,
         },
@@ -63,11 +63,11 @@ export const handler = async (event: APIGatewayEvent) => {
         statusCode: 200,
         body: JSON.stringify({
           "@context": "https://www.w3.org/ns/activitystreams",
-          id: `https://${process.env.DOMAIN}/users/${process.env.USERNAME}/followers?page=${page}`,
+          id: `https://${process.env.DOMAIN}/users/${event.pathParameters?.username}/followers?page=${page}`,
           type: "OrderedCollectionPage",
           totalItems: getRes.Item?.followers || 0,
-          // next: `https://${process.env.DOMAIN}/users/${process.env.USERNAME}/followers?page=${next page}`,
-          partOf: `https://${process.env.DOMAIN}/users/${process.env.USERNAME}/followers`,
+          // next: `https://${process.env.DOMAIN}/users/${event.pathParameters?.username}/followers?page=${next page}`,
+          partOf: `https://${process.env.DOMAIN}/users/${event.pathParameters?.username}/followers`,
           orderedItems,
         }),
       };
@@ -79,10 +79,10 @@ export const handler = async (event: APIGatewayEvent) => {
     statusCode: 200,
     body: JSON.stringify({
       "@context": "https://www.w3.org/ns/activitystreams",
-      id: `https://${process.env.DOMAIN}/users/${process.env.USERNAME}/followers`,
+      id: `https://${process.env.DOMAIN}/users/${event.pathParameters?.username}/followers`,
       type: "OrderedCollection",
       totalItems: followers,
-      first: `https://${process.env.DOMAIN}/users/${process.env.USERNAME}/followers?page=1`,
+      first: `https://${process.env.DOMAIN}/users/${event.pathParameters?.username}/followers?page=1`,
     }),
   };
 };

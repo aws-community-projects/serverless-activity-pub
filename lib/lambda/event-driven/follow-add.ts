@@ -1,6 +1,6 @@
 import { EventBridgeEvent } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { unstructureUserLink } from "../utils";
 
 import {
@@ -32,7 +32,20 @@ export const handler = async (event: EventBridgeEvent<string, any>) => {
   console.log(JSON.stringify(event));
   const activity = event.detail;
   const { server: targetServer, user: targetUser } = unstructureUserLink(activity.object);
-  if (targetUser !== process.env.USERNAME) {
+  const get = new GetCommand({
+    TableName: process.env.TABLE_NAME,
+    Key: {
+      pk: `USER#${targetUser}`,
+      sk: "PUBLIC",
+    },
+  });
+  try {
+    const getRes = await ddbDocClient.send(get);
+    console.log(JSON.stringify({ getRes }));
+    if (!getRes.Item) {
+      throw new Error("No User Item");
+    }
+  } catch (e) {
     console.log(`Trying to follow unsupported user: ${targetUser}`);
     return;
   }
@@ -55,6 +68,8 @@ export const handler = async (event: EventBridgeEvent<string, any>) => {
         Detail: JSON.stringify({
           ...activity,
           type: activity.type.toLowerCase(),
+          targetUser,
+          targetServer,
           pk: `USER#${targetUser}`,
           sk: `FOLLOWER#${activity.activityUser}@${activity.activityServer}`,
         }),

@@ -32,7 +32,7 @@ export const handler = async (event: EventBridgeEvent<string, any>) => {
   const privateUser = new GetCommand({
     TableName: process.env.TABLE_NAME,
     Key: {
-      pk: `USER#${event.detail.userName}`,
+      pk: `USER#${event.detail.targetUser}`,
       sk: "PRIVATE",
     },
   });
@@ -59,9 +59,9 @@ export const handler = async (event: EventBridgeEvent<string, any>) => {
 
   const body = {
     "@context": "https://www.w3.org/ns/activitystreams",
-    id: `https://${process.env.DOMAIN}/users/${process.env.USERNAME}#follows/${activity.activityUser}`,
+    id: `https://${process.env.DOMAIN}/users/${event.detail.targetUser}#follows/${activity.activityUser}`,
     type: "Accept",
-    actor: `https://${process.env.DOMAIN}/users/${process.env.USERNAME}`,
+    actor: `https://${process.env.DOMAIN}/users/${event.detail.targetUser}`,
     object: {
       id: activity.id,
       type: "Follow",
@@ -84,7 +84,7 @@ export const handler = async (event: EventBridgeEvent<string, any>) => {
   };
 
   const signature = signRequest({
-    keyId: `https://${process.env.DOMAIN}/users/${process.env.USERNAME}#main-key`,
+    keyId: `https://${process.env.DOMAIN}/users/${event.detail.targetUser}#main-key`,
     privateKey: secret,
     method,
     path,

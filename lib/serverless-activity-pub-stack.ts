@@ -8,6 +8,7 @@ import { Dynamo } from "./dynamo";
 import { EventDriven } from "./event-driven";
 import { Internal } from "./internal";
 import { WellKnown } from "./well-known";
+import { Outbox } from "./outbox";
 
 export class ServerlessActivityPub extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -17,15 +18,6 @@ export class ServerlessActivityPub extends Stack {
 
     const { table } = new Dynamo(this, `Dynamo`, {});
     const bus = EventBus.fromEventBusName(this, `DefaultBus`, "default");
-
-    // can probably remove this.
-    // const activityPubSecrets = new ActivityPubSecrets(
-    //   this,
-    //   `ActivityPubSecrets`,
-    //   {
-    //     domain,
-    //   }
-    // );
 
     const { authorizer, userPoolId, userPoolWebClientId } = new Cognito(
       this,
@@ -52,6 +44,14 @@ export class ServerlessActivityPub extends Stack {
       bus,
       domain,
       table,
+    });
+
+    new Outbox(this, `Outbox`, {
+      api,
+      bus,
+      domain,
+      table,
+      authorizer,
     });
 
     new Internal(this, `Internal`, {

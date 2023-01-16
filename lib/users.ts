@@ -48,7 +48,9 @@ export class Users extends Construct {
     bus.grantPutEventsTo(inboxPostFn);
 
     const userInbox = user.addResource("inbox");
-    userInbox.addMethod("POST", new LambdaIntegration(inboxPostFn));
+    const inboxIntegration = new LambdaIntegration(inboxPostFn);
+    userInbox.addMethod("POST", inboxIntegration);
+    api.root.addResource('inbox').addMethod("POST", inboxIntegration);
 
     const userFollowersFn = new NodejsFunction(this, `UserFollowersFn`, {
       functionName: `UserFollowersFn`,

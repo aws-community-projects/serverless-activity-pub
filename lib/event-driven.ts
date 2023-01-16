@@ -91,6 +91,7 @@ export class EventDriven extends Construct {
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
+        TABLE_NAME: table.tableName,
       }
     });
     table.grantReadData(followAcceptFn);
