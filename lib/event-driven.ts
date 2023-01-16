@@ -5,20 +5,20 @@ import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
+import { table } from "console";
 import { Construct } from "constructs";
 import { join } from "path";
 
 export interface EventDrivenProps {
   bus: IEventBus;
   domain: string;
-  secret: Secret;
   table: Table;
 }
 
 export class EventDriven extends Construct {
   constructor(scope: Construct, id: string, props: EventDrivenProps) {
     super(scope, id);
-    const { bus, domain, secret, table } = props;
+    const { bus, domain, table } = props;
 
     const addFollowerFn = new NodejsFunction(this, `FollowAddFn`, {
       functionName: `FollowAddFn`,
@@ -91,7 +91,6 @@ export class EventDriven extends Construct {
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
-        SECRET_ID: secret.secretArn,
       }
     });
     table.grantReadData(followAcceptFn);

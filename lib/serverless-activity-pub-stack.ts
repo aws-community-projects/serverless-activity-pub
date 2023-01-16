@@ -63,7 +63,6 @@ export class ServerlessActivityPub extends Stack {
     new EventDriven(this, `EventDriven`, {
       bus,
       domain,
-      secret: activityPubSecrets.secret,
       table,
     });
   }
