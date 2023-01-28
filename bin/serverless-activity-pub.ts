@@ -9,4 +9,5 @@ new ServerlessActivityPub(app, "ServerlessActivityPub", {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,
   },
+  domain: 'serverlesscult.com'
 });

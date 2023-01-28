@@ -10,11 +10,15 @@ import { Internal } from "./internal";
 import { WellKnown } from "./well-known";
 import { Outbox } from "./outbox";
 
+export interface ServerlessActivityPubProps extends StackProps {
+  domain: string;
+}
+
 export class ServerlessActivityPub extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props: ServerlessActivityPubProps) {
     super(scope, id, props);
 
-    const domain = `martz.codes`;
+    const { domain } = props;
 
     const { table } = new Dynamo(this, `Dynamo`, {});
     const bus = EventBus.fromEventBusName(this, `DefaultBus`, "default");
