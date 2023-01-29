@@ -1,15 +1,5 @@
 import { createVerify, getHashes, createSign } from "crypto";
-import { Readable } from "stream";
 import fetch from "node-fetch";
-
-export const streamToString = async (stream: Readable): Promise<string> => {
-  return new Promise((res, rej) => {
-    const chunks: Uint8Array[] = [];
-    stream.on("data", (chunk) => chunks.push(chunk));
-    stream.on("error", rej);
-    stream.on("end", () => res(Buffer.concat(chunks).toString("utf8")));
-  });
-};
 
 export const normalizeHeaders = (
   headers: Record<string, string>
@@ -139,30 +129,4 @@ export const signRequest = ({
     `headers="(request-target) ${headerNames.join(" ")}"`,
     `signature="${signature}"`,
   ].join(",");
-};
-
-export const unstructureUserLink = (
-  link: string
-): { server: string; user: string } => {
-  const actor = link.replace("https://", "");
-  const splitActor = actor.split("/");
-  const server = splitActor[0].toLowerCase();
-  const user = splitActor[splitActor.length - 1].toLowerCase();
-  return { server, user };
-};
-
-export const expandUndo = (
-  activity: any
-): { targetServer?: string; targetUser?: string; type?: string } => {
-  if (activity.type.toLowerCase() !== "undo") {
-    return {};
-  }
-  const { server: targetServer, user: targetUser } = unstructureUserLink(
-    activity.object.object
-  );
-  return {
-    type: activity.object.type.toLowerCase(),
-    targetServer,
-    targetUser,
-  };
 };

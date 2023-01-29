@@ -8,12 +8,14 @@ This is a CDK-based Serverless Implementation of ActivityPub that is (or will be
 
 ## TODO:
 
-- [ ] ***[ACTIVE FOCUS]*** Convert from single-user to multi-user
+- [ ] ***[ACTIVE FOCUS]*** Follow users on another server
+- [ ] Send "Toots" to followers
 - [ ] Unit tests 😅
 - [ ] Arch diagram(s)
 - [ ] List out APIs to convert in TODO List...
 
 ## Completed:
+- [x] Convert from single-user to multi-user
 - [x] Single User webfinger
 - [x] Follow single user from mastodon
 - [x] Unfollow single user from mastodon

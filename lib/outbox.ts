@@ -1,4 +1,5 @@
 import { AuthorizationType, Authorizer, LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
+import { OAuthScope } from "aws-cdk-lib/aws-cognito";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { IEventBus } from "aws-cdk-lib/aws-events";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
@@ -22,7 +23,7 @@ export class Outbox extends Construct {
     const outboxResource = api.root.addResource("outbox");
     const outboxFn = new NodejsFunction(this, `OutboxFn`, {
       functionName: `OutboxFn`,
-      entry: join(__dirname, "./lambda/outbox.ts"),
+      entry: join(__dirname, "./lambda/api/outbox/outbox.ts"),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
       environment: {
@@ -36,7 +37,7 @@ export class Outbox extends Construct {
       methodResponses: [{ statusCode: "200" }],
       authorizer: props.authorizer,
       authorizationType: AuthorizationType.COGNITO,
-      authorizationScopes: ['aws.cognito.signin.user.admin'],
+      authorizationScopes: [OAuthScope.COGNITO_ADMIN.scopeName],
     });
   }
 }

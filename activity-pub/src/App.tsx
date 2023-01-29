@@ -37,8 +37,8 @@ function App() {
   const [config, setConfig] = useState<any>({
     loaded: true,
     data: {
-      userPoolId: "us-east-1_tsjlays9F",
-      userPoolWebClientId: "1br85s1rbehign88jlor4mophp",
+      userPoolId: "us-east-1_TNjQN27y4",
+      userPoolWebClientId: "1kg1gl1aguafjhkfs98os52ove",
       version: "1",
     },
   });

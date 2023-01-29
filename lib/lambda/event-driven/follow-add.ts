@@ -1,12 +1,12 @@
 import { EventBridgeEvent } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
-import { unstructureUserLink } from "../utils";
 
 import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
+import { unstructureUserLink } from "../utils/unstructure-user-link";
 
 const eb = new EventBridgeClient({});
 const ddbClient = new DynamoDBClient({});

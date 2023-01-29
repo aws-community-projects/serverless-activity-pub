@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import { EventBridgeEvent } from "aws-lambda";
 import { URL } from "url";
-import { signRequest } from "../utils";
+import { signRequest } from "../utils/utils";
 import { createHash } from "crypto";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";

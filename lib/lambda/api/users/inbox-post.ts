@@ -1,9 +1,11 @@
 import type { APIGatewayEvent } from "aws-lambda";
-import { expandUndo, getPublicKey, unstructureUserLink, verifyRequest } from "./utils";
+import { getPublicKey, verifyRequest } from "../../utils/utils";
 import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
+import { expandUndo } from "../../utils/expand-undo";
+import { unstructureUserLink } from "../../utils/unstructure-user-link";
 
 const eb = new EventBridgeClient({});
 
@@ -24,9 +26,14 @@ export const handler = async (event: APIGatewayEvent) => {
     },
     {} as Record<string, string>
   );
+  const activity = JSON.parse(event.body);
+
+  const host = activity.id.replace('https://', '').split('/')[0];
+  console.log(JSON.stringify({host}));
+
   const requestVerified = await verifyRequest({
     method: event.httpMethod,
-    headers: {...headers, host: 'awscommunity.social'},
+    headers: {...headers, host},
     path: event.path,
   });
   console.log(`requestVerified: ${requestVerified}`);
@@ -34,7 +41,6 @@ export const handler = async (event: APIGatewayEvent) => {
     return { statusCode: 401, body: "HTTP signature not verified" };
   }
 
-  const activity = JSON.parse(event.body);
   const { server: activityServer, user: activityUser } = unstructureUserLink(
     activity.actor
   );

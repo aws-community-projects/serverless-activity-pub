@@ -3,26 +3,33 @@ import { ViewBoardsIcon } from "@heroicons/react/solid";
 import { useState } from "react";
 import Actions from "./actions";
 
-const Message = () => {
+const Follow = () => {
   const { user } = useAuthenticator((context) => [context.user]);
-  const [messageBox, setMessageBox] = useState("");
+  const [userToFollow, setUserToFollow] = useState("");
 
   const handleChange = (e: any) => {
-    setMessageBox(e.target.value);
+    setUserToFollow(e.target.value);
   };
   const postMessage = async () => {
+    if (!userToFollow) {
+      return;
+    }
     const token = user?.getSignInUserSession()?.getAccessToken().getJwtToken();
     if (token) {
-      fetch(new URL(`https://serverlesscult.com/outbox`), {
-      method: "POST",
-      body: JSON.stringify({
-        message: messageBox,
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-        "Authorization": `Bearer ${token}`,
-      },
-    });
+      const res = await fetch(
+        new URL(`https://serverlesscult.com/internal/follow`),
+        {
+          method: "POST",
+          body: JSON.stringify({
+            userToFollow,
+          }),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(JSON.stringify(res.body));
     }
   };
   return (
@@ -31,9 +38,9 @@ const Message = () => {
         <div className="flex-1">
           <input
             type="text"
-            value={messageBox}
+            value={userToFollow}
             onChange={handleChange}
-            placeholder="What's happening?"
+            placeholder="martz@serverlesscult.com"
             className="w-full text-[1.25rem] focus:outline-none"
           />
         </div>
@@ -43,7 +50,7 @@ const Message = () => {
           </div>
           <Actions
             sendMessage={() => {
-              console.log(`message: ${messageBox}`);
+              console.log(`message: ${userToFollow}`);
               postMessage();
             }}
           />
@@ -53,4 +60,4 @@ const Message = () => {
   );
 };
 
-export default Message;
+export default Follow;

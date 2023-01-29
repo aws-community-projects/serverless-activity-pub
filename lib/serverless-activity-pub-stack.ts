@@ -27,6 +27,7 @@ export class ServerlessActivityPub extends Stack {
       this,
       `Cognito`,
       {
+        bus,
         domain,
         table,
       }
@@ -61,6 +62,7 @@ export class ServerlessActivityPub extends Stack {
     new Internal(this, `Internal`, {
       api,
       authorizer,
+      bus,
       domain,
     });
 

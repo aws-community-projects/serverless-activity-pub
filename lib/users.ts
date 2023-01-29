@@ -22,7 +22,7 @@ export class Users extends Construct {
     const user = actor.addResource("{username}");
     const userFn = new NodejsFunction(this, `UserFn`, {
       functionName: `UserFn`,
-      entry: join(__dirname, "./lambda/user.ts"),
+      entry: join(__dirname, "./lambda/api/users/user.ts"),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
       environment: {
@@ -38,7 +38,7 @@ export class Users extends Construct {
 
     const inboxPostFn = new NodejsFunction(this, `InboxPostFn`, {
       functionName: `InboxPostFn`,
-      entry: join(__dirname, "./lambda/inbox-post.ts"),
+      entry: join(__dirname, "./lambda/api/users/inbox-post.ts"),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
       environment: {
@@ -54,7 +54,7 @@ export class Users extends Construct {
 
     const userFollowersFn = new NodejsFunction(this, `UserFollowersFn`, {
       functionName: `UserFollowersFn`,
-      entry: join(__dirname, "./lambda/user-followers.ts"),
+      entry: join(__dirname, "./lambda/api/users/user-followers.ts"),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
       environment: {
