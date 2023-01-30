@@ -64,6 +64,7 @@ export class ServerlessActivityPub extends Stack {
       authorizer,
       bus,
       domain,
+      table,
     });
 
     new EventDriven(this, `EventDriven`, {

@@ -32,7 +32,7 @@ export class EventDriven extends Construct {
     });
     bus.grantPutEventsTo(addFollowerFn);
     table.grantReadWriteData(addFollowerFn);
-    
+
     new Rule(this, `FollowAddRule`, {
       eventBus: bus,
       eventPattern: {
@@ -40,6 +40,49 @@ export class EventDriven extends Construct {
         detailType: [`follow`]
       },
       targets: [new LambdaFunction(addFollowerFn)],
+    });
+
+    const acceptFn = new NodejsFunction(this, `AcceptFn`, {
+      functionName: `AcceptFn`,
+      entry: join(__dirname, './lambda/event-driven/accept.ts'),
+      runtime: Runtime.NODEJS_18_X,
+      logRetention: RetentionDays.ONE_DAY,
+      environment: {
+        DOMAIN: domain,
+        TABLE_NAME: table.tableName,
+      }
+    });
+    bus.grantPutEventsTo(acceptFn);
+    table.grantReadWriteData(acceptFn);
+
+    new Rule(this, `AcceptRule`, {
+      eventBus: bus,
+      eventPattern: {
+        source: [`activity-pub.inbox-post`],
+        detailType: [`accept`]
+      },
+      targets: [new LambdaFunction(acceptFn)],
+    });
+
+    const categorizeFn = new NodejsFunction(this, `CategorizeFn`, {
+      functionName: `CategorizeFn`,
+      entry: join(__dirname, './lambda/event-driven/categorize.ts'),
+      runtime: Runtime.NODEJS_18_X,
+      logRetention: RetentionDays.ONE_DAY,
+      environment: {
+        DOMAIN: domain,
+        TABLE_NAME: table.tableName,
+      }
+    });
+    bus.grantPutEventsTo(categorizeFn);
+    table.grantReadWriteData(categorizeFn);
+
+    new Rule(this, `CategorizeRule`, {
+      eventBus: bus,
+      eventPattern: {
+        source: [`activity-pub.inbox-post`],
+      },
+      targets: [new LambdaFunction(categorizeFn)],
     });
 
     const undoFollowFn = new NodejsFunction(this, `UndoFollowFn`, {
