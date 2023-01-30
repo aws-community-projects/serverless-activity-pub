@@ -43,9 +43,11 @@ export class Users extends Construct {
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
+        TABLE_NAME: table.tableName,
       },
     });
     bus.grantPutEventsTo(inboxPostFn);
+    table.grantReadData(inboxPostFn);
 
     const userInbox = user.addResource("inbox");
     const inboxIntegration = new LambdaIntegration(inboxPostFn);

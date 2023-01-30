@@ -36,7 +36,7 @@ export const handler = async (event: PostConfirmationTriggerEvent) => {
 
   const { DOMAIN } = process.env;
   // TODO: check that the user name is valid/exists
-  const preferredName = event.request?.userAttributes?.preferred_username;
+  const preferredName = event.request?.userAttributes?.preferred_username.toLowerCase();
   try {
     const { publicKey: publicKeyPem, privateKey } = generateKeyPairSync("rsa", {
       modulusLength: 2048, // the length of your key in bits
@@ -69,39 +69,15 @@ export const handler = async (event: PostConfirmationTriggerEvent) => {
         id: `https://${DOMAIN}/users/${preferredName}`,
         type: "Person",
         name: `${preferredName}`,
-        preferredUsername: `${preferredName}`,
+        preferredUsername: `${event.request?.userAttributes?.username}`,
         inbox: `https://${DOMAIN}/users/${preferredName}/inbox`,
         following: `https://${DOMAIN}/users/${preferredName}/following`,
         followers: `https://${DOMAIN}/users/${preferredName}/followers`,
         featured: `https://${DOMAIN}/users/${preferredName}/collections/featured`,
         url: `https://${DOMAIN}/users/${preferredName}`,
         tag: [],
-        // icon: {
-        //   type: "Image",
-        //   mediaType: "image/png",
-        //   url: "https://cdn.masto.host/awscommunitysocial/accounts/avatars/109/285/701/561/689/321/original/36034c74b7bcc778.png",
-        // },
         featuredTags: `https://${DOMAIN}/users/${preferredName}/collections/tags`,
-        attachment: [
-          // {
-          //   type: "PropertyValue",
-          //   name: "Blog",
-          //   value:
-          //     '<a href="https://matt.martz.codes" target="_blank" rel="nofollow noopener noreferrer me"><span class="invisible">https://</span><span class="">matt.martz.codes</span><span class="invisible"></span></a>',
-          // },
-          // {
-          //   type: "PropertyValue",
-          //   name: "Github",
-          //   value:
-          //     '<a href="https://github.com/martzcodes" target="_blank" rel="nofollow noopener noreferrer me"><span class="invisible">https://</span><span class="">github.com/martzcodes</span><span class="invisible"></span></a>',
-          // },
-          // {
-          //   type: "PropertyValue",
-          //   name: "Linkedin",
-          //   value:
-          //     '<a href="https://www.linkedin.com/in/martzcodes" target="_blank" rel="nofollow noopener noreferrer me"><span class="invisible">https://</span><span class="">linkedin.com/in/martzcodes</span><span class="invisible"></span></a>',
-          // },
-        ],
+        attachment: [],
         publicKey: {
           id: `https://${DOMAIN}/users/${preferredName}#main-key`,
           owner: `https://${DOMAIN}/users/${preferredName}`,

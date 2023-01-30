@@ -64,7 +64,7 @@ export class ActivityPubApi extends Construct {
     };
     const uiPath = join(__dirname, `../activity-pub/dist`);
     const bundle = Source.asset(uiPath, {
-      assetHash: `actpub-${Date.now()}`,
+      // assetHash: `actpub-${Date.now()}`,
       bundling: {
         command: ["sh", "-c", 'echo "Not Used"'],
         image: DockerImage.fromRegistry("alpine"), // required but not used

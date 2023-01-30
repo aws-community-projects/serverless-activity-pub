@@ -9,7 +9,7 @@ The idea here is that by following external users we can start categorizing the 
   - [x] Store pending follower in DynamoDB
   - [x] Send http request to mastodon/lesstdon
   - [x] Receive acknowledgement back and store result in dynamodb
-  - [ ] Stretch: Store / categorize types of events received to the inbox
+  - [x] Stretch: Store / categorize types of events received to the inbox
   - [ ] Stretch: Rename all the things
 
 

@@ -74,8 +74,6 @@ export const verifyRequest = async ({
   // hacky workaround for cloudfront replacing the host
   // const host = sigParts.keyId.replace("https://", "").split("/")[0];
   lcHeaders.host = `${process.env.DOMAIN}`;
-  console.log(JSON.stringify({lcHeaders}, null, 2));
-  console.log(JSON.stringify({sigParts}, null, 2));
 
   const {
     signature,
@@ -88,10 +86,8 @@ export const verifyRequest = async ({
     .split(" ")
     .filter((k) => k !== "(request-target)");
   const toVerify = requestCleartext({ method, path, headerNames, lcHeaders });
-  console.log(`toVerify: ${toVerify}`);
 
   const key = await getPublicKey({ keyId });
-  console.log(`key: ${key}`);
   if (!key) return false;
 
   return createVerify(normalizeAlgorithm(algorithm))
@@ -117,7 +113,6 @@ export const signRequest = ({
   const lcHeaders = normalizeHeaders(headers);
   const headerNames = Object.keys(lcHeaders);
   const toSign = requestCleartext({ method, path, headerNames, lcHeaders });
-  console.log(JSON.stringify({toSign}));
 
   const signature = createSign(normalizeAlgorithm(algorithm))
     .update(toSign)
