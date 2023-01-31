@@ -1,0 +1,20 @@
+{
+  "@context": [
+      "https://www.w3.org/ns/activitystreams",
+      {
+          "ostatus": "http://ostatus.org#",
+          "atomUri": "ostatus:atomUri"
+      }
+  ],
+  "id": "https://awscommunity.social/users/martzcodes/statuses/109782022268006291#delete",
+  "type": "Delete",
+  "actor": "https://awscommunity.social/users/martzcodes",
+  "to": [
+      "https://www.w3.org/ns/activitystreams#Public"
+  ],
+  "object": {
+      "id": "https://awscommunity.social/users/martzcodes/statuses/109782022268006291",
+      "type": "Tombstone",
+      "atomUri": "https://awscommunity.social/users/martzcodes/statuses/109782022268006291"
+  }
+}

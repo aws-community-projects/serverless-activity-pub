@@ -32,6 +32,7 @@ export class Internal extends Construct {
       entry: join(__dirname, './lambda/api/internal/internal.ts'),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
+      timeout: Duration.minutes(5),
       environment: {
         DOMAIN: domain,
       }
@@ -49,7 +50,7 @@ export class Internal extends Construct {
       entry: join(__dirname, './lambda/api/internal/follow.ts'),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
-      timeout: Duration.minutes(1),
+      timeout: Duration.minutes(5),
       environment: {
         DOMAIN: domain,
         TABLE_NAME: table.tableName,

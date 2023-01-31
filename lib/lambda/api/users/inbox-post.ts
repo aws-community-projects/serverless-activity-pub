@@ -97,11 +97,15 @@ export const handler = async (event: APIGatewayEvent) => {
     };
     const putEventsCommand = new PutEventsCommand(putEventInput);
     await eb.send(putEventsCommand);
-    return { statusCode: 200 };
   }
+  
   console.log(
     JSON.stringify({ activity, requestVerified, putEventInput }, null, 2)
   );
 
-  return { statusCode: 401, body: "HTTP signature not verified" };
+  if (requestVerified) {
+    return { statusCode: 200 };
+  } else {
+    return { statusCode: 401, body: "HTTP signature not verified" };
+  }
 };

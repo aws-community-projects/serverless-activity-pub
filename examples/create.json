@@ -1,0 +1,67 @@
+{
+  "@context": [
+      "https://www.w3.org/ns/activitystreams",
+      {
+          "ostatus": "http://ostatus.org#",
+          "atomUri": "ostatus:atomUri",
+          "inReplyToAtomUri": "ostatus:inReplyToAtomUri",
+          "conversation": "ostatus:conversation",
+          "sensitive": "as:sensitive",
+          "toot": "http://joinmastodon.org/ns#",
+          "votersCount": "toot:votersCount"
+      }
+  ],
+  "id": "https://awscommunity.social/users/martzcodes/statuses/109782022268006291/activity",
+  "type": "Create",
+  "actor": "https://awscommunity.social/users/martzcodes",
+  "published": "2023-01-31T04:52:00Z",
+  "to": [
+      "https://www.w3.org/ns/activitystreams#Public"
+  ],
+  "cc": [
+      "https://awscommunity.social/users/martzcodes/followers",
+      "https://serverlesscult.com/users/martz"
+  ],
+  "object": {
+      "id": "https://awscommunity.social/users/martzcodes/statuses/109782022268006291",
+      "type": "Note",
+      "summary": null,
+      "inReplyTo": null,
+      "published": "2023-01-31T04:52:00Z",
+      "url": "https://awscommunity.social/@martzcodes/109782022268006291",
+      "attributedTo": "https://awscommunity.social/users/martzcodes",
+      "to": [
+          "https://www.w3.org/ns/activitystreams#Public"
+      ],
+      "cc": [
+          "https://awscommunity.social/users/martzcodes/followers",
+          "https://serverlesscult.com/users/martz"
+      ],
+      "sensitive": false,
+      "atomUri": "https://awscommunity.social/users/martzcodes/statuses/109782022268006291",
+      "inReplyToAtomUri": null,
+      "conversation": "tag:awscommunity.social,2023-01-31:objectId=10442564:objectType=Conversation",
+      "content": "<p>testing mentions... <span class=\"h-card\"><a href=\"https://serverlesscult.com/users/martz\" class=\"u-url mention\">@<span>martz</span></a></span></p>",
+      "contentMap": {
+          "en": "<p>testing mentions... <span class=\"h-card\"><a href=\"https://serverlesscult.com/users/martz\" class=\"u-url mention\">@<span>martz</span></a></span></p>"
+      },
+      "attachment": [],
+      "tag": [
+          {
+              "type": "Mention",
+              "href": "https://serverlesscult.com/users/martz",
+              "name": "@martz@serverlesscult.com"
+          }
+      ],
+      "replies": {
+          "id": "https://awscommunity.social/users/martzcodes/statuses/109782022268006291/replies",
+          "type": "Collection",
+          "first": {
+              "type": "CollectionPage",
+              "next": "https://awscommunity.social/users/martzcodes/statuses/109782022268006291/replies?only_other_accounts=true&page=true",
+              "partOf": "https://awscommunity.social/users/martzcodes/statuses/109782022268006291/replies",
+              "items": []
+          }
+      }
+  }
+}

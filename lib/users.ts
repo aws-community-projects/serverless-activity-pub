@@ -1,3 +1,4 @@
+import { Duration } from "aws-cdk-lib";
 import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { IEventBus } from "aws-cdk-lib/aws-events";
@@ -24,6 +25,7 @@ export class Users extends Construct {
       functionName: `UserFn`,
       entry: join(__dirname, "./lambda/api/users/user.ts"),
       runtime: Runtime.NODEJS_18_X,
+      timeout: Duration.minutes(5),
       logRetention: RetentionDays.ONE_DAY,
       environment: {
         DOMAIN: domain,
@@ -41,6 +43,7 @@ export class Users extends Construct {
       entry: join(__dirname, "./lambda/api/users/inbox-post.ts"),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
+      timeout: Duration.minutes(5),
       environment: {
         DOMAIN: domain,
         TABLE_NAME: table.tableName,
@@ -59,6 +62,7 @@ export class Users extends Construct {
       entry: join(__dirname, "./lambda/api/users/user-followers.ts"),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
+      timeout: Duration.minutes(5),
       environment: {
         DOMAIN: domain,
         TABLE_NAME: table.tableName,

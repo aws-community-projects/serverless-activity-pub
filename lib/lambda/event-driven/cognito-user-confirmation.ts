@@ -103,7 +103,7 @@ export const handler = async (event: PostConfirmationTriggerEvent) => {
   const putEventInput = {
     Entries: [
       {
-        Source: `activity-pub.user-confirmation`,
+        Source: `activity-pub.cognito-user-confirmation`,
         DetailType: 'user-added',
         Detail: JSON.stringify({
           GroupName: 'users',

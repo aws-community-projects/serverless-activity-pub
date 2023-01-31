@@ -1,3 +1,4 @@
+import { Duration } from "aws-cdk-lib";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { IEventBus, Rule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
@@ -20,26 +21,27 @@ export class EventDriven extends Construct {
     super(scope, id);
     const { bus, domain, table } = props;
 
-    const addFollowerFn = new NodejsFunction(this, `FollowAddFn`, {
-      functionName: `FollowAddFn`,
-      entry: join(__dirname, './lambda/event-driven/follow-add.ts'),
+    const addExternalFollowerFn = new NodejsFunction(this, `AddExternalFollowerFn`, {
+      functionName: `AddExternalFollowerFn`,
+      entry: join(__dirname, './lambda/event-driven/add-external-follower.ts'),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
+      timeout: Duration.minutes(5),
       environment: {
         DOMAIN: domain,
         TABLE_NAME: table.tableName,
       }
     });
-    bus.grantPutEventsTo(addFollowerFn);
-    table.grantReadWriteData(addFollowerFn);
+    bus.grantPutEventsTo(addExternalFollowerFn);
+    table.grantReadWriteData(addExternalFollowerFn);
 
-    new Rule(this, `FollowAddRule`, {
+    new Rule(this, `AddExternalFollowerRule`, {
       eventBus: bus,
       eventPattern: {
         source: [`activity-pub.inbox-post`],
         detailType: [`follow`]
       },
-      targets: [new LambdaFunction(addFollowerFn)],
+      targets: [new LambdaFunction(addExternalFollowerFn)],
     });
 
     const acceptFn = new NodejsFunction(this, `AcceptFn`, {
@@ -47,6 +49,7 @@ export class EventDriven extends Construct {
       entry: join(__dirname, './lambda/event-driven/accept.ts'),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
+      timeout: Duration.minutes(5),
       environment: {
         DOMAIN: domain,
         TABLE_NAME: table.tableName,
@@ -69,6 +72,7 @@ export class EventDriven extends Construct {
       entry: join(__dirname, './lambda/event-driven/categorize.ts'),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
+      timeout: Duration.minutes(5),
       environment: {
         DOMAIN: domain,
         TABLE_NAME: table.tableName,
@@ -85,26 +89,27 @@ export class EventDriven extends Construct {
       targets: [new LambdaFunction(categorizeFn)],
     });
 
-    const undoFollowFn = new NodejsFunction(this, `UndoFollowFn`, {
-      functionName: `UndoFollowFn`,
-      entry: join(__dirname, './lambda/event-driven/undo-follow.ts'),
+    const removeExternalFollower = new NodejsFunction(this, `RemoveExternalFollowerFn`, {
+      functionName: `RemoveExternalFollowerFn`,
+      entry: join(__dirname, './lambda/event-driven/remove-external-follower.ts'),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
+      timeout: Duration.minutes(5),
       environment: {
         DOMAIN: domain,
         TABLE_NAME: table.tableName,
       }
     });
-    bus.grantPutEventsTo(undoFollowFn);
-    table.grantReadWriteData(undoFollowFn);
+    bus.grantPutEventsTo(removeExternalFollower);
+    table.grantReadWriteData(removeExternalFollower);
     
-    new Rule(this, `UndoFollowRule`, {
+    new Rule(this, `RemoveExternalFollowerRule`, {
       eventBus: bus,
       eventPattern: {
         source: [`activity-pub.inbox-post`],
         detailType: [`undo.follow`]
       },
-      targets: [new LambdaFunction(undoFollowFn)],
+      targets: [new LambdaFunction(removeExternalFollower)],
     });
 
     const updateFollowersFn = new NodejsFunction(this, `UpdateFollowersFn`, {
@@ -112,6 +117,7 @@ export class EventDriven extends Construct {
       entry: join(__dirname, './lambda/event-driven/update-followers.ts'),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
+      timeout: Duration.minutes(5),
       environment: {
         DOMAIN: domain,
         TABLE_NAME: table.tableName,
@@ -127,24 +133,25 @@ export class EventDriven extends Construct {
       targets: [new LambdaFunction(updateFollowersFn)],
     });
 
-    const followAcceptFn = new NodejsFunction(this, `FollowAcceptFn`, {
-      functionName: `FollowAcceptFn`,
-      entry: join(__dirname, './lambda/event-driven/follow-accept.ts'),
+    const followAcceptExternal = new NodejsFunction(this, `SendFollowAcceptToExternal`, {
+      functionName: `SendFollowAcceptToExternal`,
+      entry: join(__dirname, './lambda/event-driven/send-follow-accept-to-external.ts'),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
+      timeout: Duration.minutes(5),
       environment: {
         DOMAIN: domain,
         TABLE_NAME: table.tableName,
       }
     });
-    table.grantReadData(followAcceptFn);
+    table.grantReadData(followAcceptExternal);
     
-    new Rule(this, `FollowAcceptRule`, {
+    new Rule(this, `SendFollowAcceptExternalRule`, {
       eventBus: bus,
       eventPattern: {
-        source: [`activity-pub.follow-add`],
+        source: [`activity-pub.add-external-follower`],
       },
-      targets: [new LambdaFunction(followAcceptFn)],
+      targets: [new LambdaFunction(followAcceptExternal)],
     });
   }
 }

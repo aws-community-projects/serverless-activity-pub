@@ -30,7 +30,7 @@ export class Cognito extends Construct {
 
     const userConfirmationFn = new NodejsFunction(this, `UserConfirmationFn`, {
       functionName: `UserConfirmationFn`,
-      entry: join(__dirname, "./lambda/event-driven/user-confirmation.ts"),
+      entry: join(__dirname, "./lambda/event-driven/cognito-user-confirmation.ts"),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
       environment: {
@@ -63,7 +63,7 @@ export class Cognito extends Construct {
     });
     const userConfirmedFn = new NodejsFunction(this, `UserConfirmedFn`, {
       functionName: `UserConfirmedFn`,
-      entry: join(__dirname, "./lambda/event-driven/user-confirmed.ts"),
+      entry: join(__dirname, "./lambda/event-driven/cognito-user-confirmed.ts"),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
       timeout: Duration.seconds(30),
@@ -72,7 +72,7 @@ export class Cognito extends Construct {
     new Rule(this, `UserConfirmedRule`, {
       eventBus: bus,
       eventPattern: {
-        source: [`activity-pub.user-confirmation`],
+        source: [`activity-pub.cognito-user-confirmation`],
         detailType: [`user-added`]
       },
       targets: [new LambdaFunction(userConfirmedFn)],

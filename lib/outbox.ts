@@ -1,3 +1,4 @@
+import { Duration } from "aws-cdk-lib";
 import { AuthorizationType, Authorizer, LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { OAuthScope } from "aws-cdk-lib/aws-cognito";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
@@ -26,6 +27,7 @@ export class Outbox extends Construct {
       entry: join(__dirname, "./lambda/api/outbox/outbox.ts"),
       runtime: Runtime.NODEJS_18_X,
       logRetention: RetentionDays.ONE_DAY,
+      timeout: Duration.minutes(5),
       environment: {
         DOMAIN: domain,
         TABLE_NAME: table.tableName,

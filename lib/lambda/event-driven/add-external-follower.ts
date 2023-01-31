@@ -1,11 +1,12 @@
 import { EventBridgeEvent } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
+import { unstructureUserLink } from "../utils/unstructure-user-link";
 
 const eb = new EventBridgeClient({});
 const ddbClient = new DynamoDBClient({});
@@ -30,33 +31,48 @@ const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
 export const handler = async (event: EventBridgeEvent<string, any>) => {
   console.log(JSON.stringify(event));
   const activity = event.detail;
-  const command = new UpdateCommand({
+  const { server: targetServer, user: targetUser } = unstructureUserLink(activity.object);
+  const get = new GetCommand({
     TableName: process.env.TABLE_NAME,
     Key: {
-      pk: `USER#${activity.targetUser}`,
-      sk: `FOLLOWER#${activity.activityUser}@${activity.activityServer}`,
+      pk: `USER#${targetUser}`,
+      sk: "PUBLIC",
     },
-    UpdateExpression: "SET active = :a REMOVE #id",
-    ConditionExpression: "attribute_exists(id)",
-    ExpressionAttributeNames: {
-      "#id": "id",
-    },
-    ExpressionAttributeValues: {
-      ":a": false,
-    },
-    ReturnValues: "ALL_NEW"
   });
-  const ddbRes = await ddbDocClient.send(command);
-  console.log(JSON.stringify({ddbRes}));
+  try {
+    const getRes = await ddbDocClient.send(get);
+    console.log(JSON.stringify({ getRes }));
+    if (!getRes.Item) {
+      throw new Error("No User Item");
+    }
+  } catch (e) {
+    console.log(`Trying to follow unsupported user: ${targetUser}`);
+    return;
+  }
+  const command = new PutCommand({
+    TableName: process.env.TABLE_NAME,
+    Item: {
+      pk: `USER#${targetUser}`,
+      sk: `FOLLOWER#${activity.activityUser}@${activity.activityServer}`,
+      pk1: `FOLLOWER#${activity.activityUser}@${activity.activityServer}`,
+      sk1: `USER#${targetUser}`,
+      active: true,
+      id: activity.id,
+      actor: activity.actor,
+    },
+  });
+  await ddbDocClient.send(command);
   const putEventsCommand = new PutEventsCommand({
     Entries: [
       {
-        Source: `activity-pub.undo-follow`,
-        DetailType: 'follower.removed',
+        Source: `activity-pub.add-external-follower`,
+        DetailType: 'follower.added',
         Detail: JSON.stringify({
           ...activity,
           type: activity.type.toLowerCase(),
-          pk: `USER#${activity.targetUser}`,
+          targetUser,
+          targetServer,
+          pk: `USER#${targetUser}`,
           sk: `FOLLOWER#${activity.activityUser}@${activity.activityServer}`,
         }),
       },

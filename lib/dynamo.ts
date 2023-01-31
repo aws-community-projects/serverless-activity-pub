@@ -1,5 +1,5 @@
 import { RemovalPolicy } from "aws-cdk-lib";
-import { AttributeType, BillingMode, Table } from "aws-cdk-lib/aws-dynamodb";
+import { AttributeType, BillingMode, ProjectionType, Table } from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 
 export interface DynamoProps {}
@@ -14,6 +14,13 @@ export class Dynamo extends Construct {
       billingMode: BillingMode.PAY_PER_REQUEST,
       timeToLiveAttribute: 'ttl',
       removalPolicy: RemovalPolicy.DESTROY,
+    });
+
+    this.table.addGlobalSecondaryIndex({
+      indexName: 'gsi1',
+      partitionKey: {name: 'pk1', type: AttributeType.STRING},
+      sortKey: {name: 'sk1', type: AttributeType.STRING},
+      projectionType: ProjectionType.ALL,
     });
   }
 }
