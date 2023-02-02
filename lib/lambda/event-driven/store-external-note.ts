@@ -4,6 +4,7 @@ import {
   DynamoDBDocumentClient,
   BatchWriteCommand,
   QueryCommand,
+  PutCommand,
 } from "@aws-sdk/lib-dynamodb";
 import console = require("console");
 
@@ -37,7 +38,7 @@ const batchUpdateForFollowers = async ({
   const queryCommand = new QueryCommand({
     TableName: process.env.TABLE_NAME,
     KeyConditionExpression: "#pk = :pk",
-    IndexName: 'gsi1',
+    IndexName: "gsi1",
     ExpressionAttributeNames: {
       "#pk": "pk1",
       "#active": "active",
@@ -62,7 +63,9 @@ const batchUpdateForFollowers = async ({
     followers = queryRes.Items.map((follower) => follower.pk);
   } catch (e) {
     console.log(e);
-    console.log(`No one follows: ${activity.activityUser}@${activity.activityServer}`);
+    console.log(
+      `No one follows: ${activity.activityUser}@${activity.activityServer}`
+    );
     return;
   }
 
@@ -76,14 +79,14 @@ const batchUpdateForFollowers = async ({
             pk1: `NOTE`,
             sk1: `NOTE#${activity.object.published}#${activity.object.id}`,
             deleted: false,
-            ttl: (Date.now()/1000) + 30*24*60*60,
+            ttl: Date.now() / 1000 + 30 * 24 * 60 * 60,
             ...activity.object,
           },
         },
       })),
     },
   };
-  console.log(JSON.stringify({params}, null, 2));
+  console.log(JSON.stringify({ params }, null, 2));
   const command = new BatchWriteCommand(params);
 
   await ddbDocClient.send(command);
@@ -97,5 +100,63 @@ const batchUpdateForFollowers = async ({
 export const handler = async (event: EventBridgeEvent<string, any>) => {
   console.log(JSON.stringify(event));
   const activity = event.detail;
-  await batchUpdateForFollowers({ activity });
+  const publicNote = activity.object.to.includes("https://www.w3.org/ns/activitystreams#Public");
+  if (!publicNote) {
+    // ? Do we want to store DMs?
+    return;
+  }
+  const queryCommand = new QueryCommand({
+    TableName: process.env.TABLE_NAME,
+    KeyConditionExpression: "#pk = :pk",
+    IndexName: "gsi1",
+    ExpressionAttributeNames: {
+      "#pk": "pk1",
+      "#active": "active",
+    },
+    ExpressionAttributeValues: {
+      ":pk": `FOLLOWER#${activity.activityUser}@${activity.activityServer}`,
+      ":active": true,
+    },
+    FilterExpression: "#active = :active",
+    Limit: 1,
+  });
+  try {
+    const queryRes = await ddbDocClient.send(queryCommand);
+    console.log(JSON.stringify({ queryRes }));
+    if (!queryRes.Items) {
+      throw new Error("No One Following");
+    }
+  } catch (e) {
+    console.log(e);
+    console.log(
+      `No one follows: ${activity.activityUser}@${activity.activityServer}`
+    );
+    return;
+  }
+
+  const hashtags = activity.object.tag
+    .filter((tag: any) => tag.type.toLowerCase() === "hashtag")
+    .map((tag: any) => tag.name.replace("#", ""));
+  const mentions = activity.object.tag
+    .filter((tag: any) => tag.type.toLowerCase() === "mention")
+    .map((tag: any) => tag.name);
+
+    // ! The to and cc fields usually list followers... it seems like to is usually "public" and cc is usually "followers + specific user"
+    // ! It's not clear if mastodon batches activity events by server or by user  
+    const ddbItem = {
+      TableName: process.env.TABLE_NAME,
+      Item: {
+        pk: `EXTERNAL#${activity.activityUser}@${activity.activityServer}`,
+        sk: `NOTE#${activity.object.id}`,
+        pk1: `NOTE`,
+        sk1: `${activity.object.published}`,
+        deleted: false,
+        ttl: Math.round(Date.now() / 1000 + 30 * 24 * 60 * 60),
+        hashtags,
+        mentions,
+        ...activity.object,
+      },
+    };
+    const command = new PutCommand(ddbItem);
+    await ddbDocClient.send(command);
 };

@@ -164,6 +164,7 @@ exports.handler = (event, context, callback) => {
           "internal",
           "liked",
           "likes",
+          "nodeinfo",
           "nodeInfo",
           "nodeInfoLocation",
           "object",

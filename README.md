@@ -12,7 +12,7 @@ This is a CDK-based Serverless Implementation of ActivityPub that is (or will be
 - [ ] Send "Toots" to followers
 - [ ] Unit tests 😅
 - [ ] Arch diagram(s)
-- [ ] List out APIs to convert in TODO List...
+- [ ] List out APIs to convert in TODO List... (https://docs.joinmastodon.org/dev/routes/)
 
 ## Completed:
 - [x] Convert from single-user to multi-user
